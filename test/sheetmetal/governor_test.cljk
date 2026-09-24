@@ -1,5 +1,5 @@
 (ns sheetmetal.governor-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [sheetmetal.store :as store]
             [sheetmetal.advisor :as advisor]
             [sheetmetal.governor :as governor]))
