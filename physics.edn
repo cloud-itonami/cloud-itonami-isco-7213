@@ -1,0 +1,34 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a workshop scheduling/logistics coordination
+;; robot for sheet-metal workers (ISCO 7213) schedules the crew, logs task,
+;; materials usage and progress, and coordinates sheet-metal supply orders;
+;; it never cuts or forms metal. Its physical work is materials logistics:
+;; bringing sheet stacks from stores to the press brake, and presenting a
+;; single blank to the operator's loading table.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-7213"
+ :cases
+ [{:id :sheet-stack-to-brake
+   :kind :transport
+   :procedure "logistics robot carries a stack of steel sheets on a pallet 50 m from the sheet store to the press brake"
+   :params {:mass-kg 250.0 :distance-m 50.0 :v-max-mps 1.0 :a-max-mps2 0.4
+            :brake-decel-mps2 0.8 :drive-force-n 800.0 :crr 0.015
+            :cog-height-m 0.35 :support-half-length-m 0.50 :payload-cog-height-m 0.45}
+   :sweep {:param :payload-kg :values [250.0 500.0 1000.0 1500.0 2000.0 3000.0]}
+   :quantity :cycle-time-s
+   :limit {:max 70.0 :basis "estimate: one stock delivery within the press-brake set-up time so the brake does not wait for material"}
+   :boundary {:lo 50.0 :hi 6000.0}}
+  {:id :blank-to-loading-table
+   :kind :manipulator
+   :procedure "arm with a magnetic / vacuum gripper takes one steel blank off the stack and places it on the press brake's loading table"
+   :params {:l1-m 0.75 :l2-m 0.65 :m1-kg 11.0 :m2-kg 8.0
+            :from [0.85 0.20] :to [0.35 0.95] :duration-s 3.0 :steps 600}
+   :sweep {:param :payload-kg :values [5.0 10.0 20.0 30.0 45.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 320.0 :basis "estimate: continuous shoulder torque of a ~25 kg-payload industrial arm class"}
+   :boundary {:lo 1.0 :hi 120.0}}]}
